@@ -461,23 +461,24 @@ with tab3:
             if valid_managers:
                 for mgr_email in valid_managers:
                     mgr_emps = needs_refresher_list[needs_refresher_list["Manager Email"] == mgr_email]
-# ... inside your button click function ...
-                    if st.button(f"📧 Draft Link Email to {mgr_email} ({len(mgr_emps)} staff)", use_container_width=True):
-                        if sys.platform == "win32":
-                            try: # <--- Everything from here down must be indented
-                                smart_link = f"{LIVE_APP_URL}/?manager={mgr_email}"
-                                pythoncom.CoInitialize()
-                                import win32com.client as win32
-                                outlook = win32.Dispatch('outlook.application')
-                                mail = outlook.CreateItem(0)
-                                # ... all these lines must have the same 4-space indentation ...
-                                mail.Display()
-                                st.success(f"✅ Email drafted for {mgr_email}!")
-                            except Exception as e:
-                                st.error(f"⚠️ Error: {e}")
-                        else: # <--- Make sure this 'else' is perfectly aligned with the 'if' above
-                            st.error("⚠️ Outlook automation only works on Windows office computers.")
-                            html_table = "<table style='border-collapse: collapse; width: 100%;'><tr style='background-color: #f2f2f2;'><th style='border: 1px solid #ddd; padding: 8px;'>Name</th><th style='border: 1px solid #ddd; padding: 8px;'>ID</th><th style='border: 1px solid #ddd; padding: 8px;'>Expiry Date</th></tr>"
+
+if st.button(f"📧 Draft Link Email to {mgr_email} ({len(mgr_emps)} staff)", use_container_width=True):
+if sys.platform == "win32":
+try: # <--- Everything from here down must be indented
+smart_link = f"{LIVE_APP_URL}/?manager={mgr_email}"
+pythoncom.CoInitialize()
+import win32com.client as win32
+outlook = win32.Dispatch('outlook.application')
+mail = outlook.CreateItem(0)
+ 
+mail.Display()
+st.success(f"✅ Email drafted for {mgr_email}!")
+except Exception as e:
+st.error(f"⚠️ Error: {e}")
+else: # <--- Make sure this 'else' is perfectly aligned with the 'if' above
+st.error("⚠️ Outlook automation only works on Windows office computers.")
+
+html_table = "<table style='border-collapse: collapse; width: 100%;'><tr style='background-color: #f2f2f2;'><th style='border: 1px solid #ddd; padding: 8px;'>Name</th><th style='border: 1px solid #ddd; padding: 8px;'>ID</th><th style='border: 1px solid #ddd; padding: 8px;'>Expiry Date</th></tr>"
                             for _, row in mgr_emps.iterrows():
                                 html_table += f"<tr><td style='border: 1px solid #ddd; padding: 8px;'>{row['Name']}</td><td style='border: 1px solid #ddd; padding: 8px;'>{row['Employee ID']}</td><td style='border: 1px solid #ddd; padding: 8px; color: red;'>{row['Expiry Date']}</td></tr>"
                             html_table += "</table>"
