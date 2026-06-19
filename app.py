@@ -422,6 +422,10 @@ with tab2:
                         db.collection("employees").document(emp_id).set(record_dict)
                 st.success("✅ Bulk upload successful!")
                 st.rerun() 
+            
+            
+            
+            
             except Exception as e:
                 st.error(f"Error processing file: {e}")
         
