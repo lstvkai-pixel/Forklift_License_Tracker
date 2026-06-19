@@ -487,7 +487,7 @@ with tab3:
                                 """
                                 mail.Display()
                                 st.success(f"✅ Email drafted for {mgr_email}!")
-                        except Exception as e:
+                            except Exception as e:
                                 st.error(f"⚠️ Connection error: {e}")
                         else:
                             st.error("⚠️ Outlook automation only works when running locally on Windows office computers. Streamlit Cloud cannot open local desktop apps.")
