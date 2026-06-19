@@ -462,41 +462,35 @@ with tab3:
                 for mgr_email in valid_managers:
                     mgr_emps = needs_refresher_list[needs_refresher_list["Manager Email"] == mgr_email]
 
-    # ... inside your button click function ...
                     if st.button(f"📧 Draft Link Email to {mgr_email} ({len(mgr_emps)} staff)", use_container_width=True):
                         if sys.platform == "win32":
-                            try: # <--- Everything from here down must be indented
+                            try:
                                 smart_link = f"{LIVE_APP_URL}/?manager={mgr_email}"
                                 pythoncom.CoInitialize()
                                 import win32com.client as win32
                                 outlook = win32.Dispatch('outlook.application')
                                 mail = outlook.CreateItem(0)
-                                # ... all these lines must have the same 4-space indentation ...
+                                
+                                html_table = "<table style='border-collapse: collapse; width: 100%;'><tr style='background-color: #f2f2f2;'><th style='border: 1px solid #ddd; padding: 8px;'>Name</th><th style='border: 1px solid #ddd; padding: 8px;'>ID</th><th style='border: 1px solid #ddd; padding: 8px;'>Expiry Date</th></tr>"
+                                for _, row in mgr_emps.iterrows():
+                                    html_table += f"<tr><td style='border: 1px solid #ddd; padding: 8px;'>{row['Name']}</td><td style='border: 1px solid #ddd; padding: 8px;'>{row['Employee ID']}</td><td style='border: 1px solid #ddd; padding: 8px; color: red;'>{row['Expiry Date']}</td></tr>"
+                                html_table += "</table>"
+                                
+                                mail.HTMLBody = f"""
+                                <p>Hi,</p>
+                                <p>The following employees under your supervision are due for mandatory Forklift Refresher Training:</p>
+                                {html_table}
+                                <br>
+                                <p><b><a href='{smart_link}' style='font-size: 16px; color: #ffffff; background-color: #0052cc; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>CLICK HERE TO SELECT THEIR TRAINING DATES</a></b></p>
+                                <br>
+                                <p>Best regards,<br>{sender_email}</p>
+                                """
                                 mail.Display()
                                 st.success(f"✅ Email drafted for {mgr_email}!")
                             except Exception as e:
-                                st.error(f"⚠️ Error: {e}")
-                        else: # <--- Make sure this 'else' is perfectly aligned with the 'if' above
-                            st.error("⚠️ Outlook automation only works on Windows office computers.")
-                            
-                            html_table = "<table style='border-collapse: collapse; width: 100%;'><tr style='background-color: #f2f2f2;'><th style='border: 1px solid #ddd; padding: 8px;'>Name</th><th style='border: 1px solid #ddd; padding: 8px;'>ID</th><th style='border: 1px solid #ddd; padding: 8px;'>Expiry Date</th></tr>"
-                            for _, row in mgr_emps.iterrows():
-                                html_table += f"<tr><td style='border: 1px solid #ddd; padding: 8px;'>{row['Name']}</td><td style='border: 1px solid #ddd; padding: 8px;'>{row['Employee ID']}</td><td style='border: 1px solid #ddd; padding: 8px; color: red;'>{row['Expiry Date']}</td></tr>"
-                            html_table += "</table>"
-                            
-                            mail.HTMLBody = f"""
-                            <p>Hi,</p>
-                            <p>The following employees under your supervision are due for mandatory Forklift Refresher Training:</p>
-                            {html_table}
-                            <br>
-                            <p><b><a href='{smart_link}' style='font-size: 16px; color: #ffffff; background-color: #0052cc; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>CLICK HERE TO SELECT THEIR TRAINING DATES</a></b></p>
-                            <br>
-                            <p>Best regards,<br>{sender_email}</p>
-                            """
-                            mail.Display()
-                            st.success(f"✅ Email drafted for {mgr_email}!")
-                        except Exception as e:
-                            st.error(f"⚠️ Connection error: {e}")
+                                st.error(f"⚠️ Connection error: {e}")
+                        else:
+                            st.error("⚠️ Outlook automation only works when running locally on Windows office computers. Streamlit Cloud cannot open local desktop apps.")
             
             missing_managers = needs_refresher_list[~needs_refresher_list["Manager Email"].isin(valid_managers)]
             if not missing_managers.empty:
@@ -539,7 +533,7 @@ with tab3:
                         row_num = 12 + idx
                         write_cell(ws, f"A{row_num}", str(idx + 1))                     
                         write_cell(ws, f"B{row_num}", row["Name"])        
-                        write_cell(ws, f"C{row_num}", "Forklift Operator")     
+                        write_cell(ws, f"C{row_num}", "Forklift Operator")      
                         write_cell(ws, f"E{row_num}", row["Employee ID"]) 
                         try: formatted_dob = pd.to_datetime(str(row["Date of Birth"]), dayfirst=True).strftime("%d/%m/%Y")
                         except: formatted_dob = str(row["Date of Birth"])
