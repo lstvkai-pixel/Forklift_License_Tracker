@@ -422,10 +422,6 @@ with tab2:
                         db.collection("employees").document(emp_id).set(record_dict)
                 st.success("✅ Bulk upload successful!")
                 st.rerun() 
-            
-            
-            
-            
             except Exception as e:
                 st.error(f"Error processing file: {e}")
         
@@ -491,7 +487,7 @@ with tab3:
                                 """
                                 mail.Display()
                                 st.success(f"✅ Email drafted for {mgr_email}!")
-                            except Exception as e:
+                        except Exception as e:
                                 st.error(f"⚠️ Connection error: {e}")
                         else:
                             st.error("⚠️ Outlook automation only works when running locally on Windows office computers. Streamlit Cloud cannot open local desktop apps.")
